@@ -38,7 +38,6 @@ def pasre_args(args)->dict:
         action='store',
         dest='store_format',
         type=str,
-        required=True,
         help='Choose store file format JSON or XML.'
     )
 
@@ -46,7 +45,7 @@ def pasre_args(args)->dict:
     args = parser.parse_args()
     # print('Args: ', args, type(args))
 
-    # result
+    # result dictionary
     words = ['students_path', 'rooms_path', 'store_format']
     for word in words:
         work = 'args' + '.' + word
