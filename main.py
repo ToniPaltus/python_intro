@@ -2,9 +2,9 @@ import logging
 import sys
 
 from config.config import db_name, host, password, user
-from ConnectionDB import ConnectionDB
-from logger import init_logger
-from parse_args import pasre_args
+from classes.ConnectionDB import ConnectionDB
+from functions.logger import init_logger
+from functions.parse_args import pasre_args
 
 init_logger("main")
 logger = logging.getLogger("main")
@@ -30,13 +30,13 @@ def main():
 
     # create copies (execute once!)
 
-    # copy_rooms_query =
-    # f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
-    # copy_students_query =
-    # f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
-    #
-    # connection.execute_query(copy_rooms_query)
-    # connection.execute_query(copy_students_query)
+    copy_rooms_query = \
+    f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
+    copy_students_query = \
+    f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
+
+    connection.execute_query(copy_rooms_query)
+    connection.execute_query(copy_students_query)
 
     query = ConnectionDB.get_query_from_file("pg_queries/query1.sql")
     connection.execute_query(query, show=True)

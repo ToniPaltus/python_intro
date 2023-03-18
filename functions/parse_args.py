@@ -1,7 +1,7 @@
 import argparse
 
 
-def pasre_args(args) -> dict:
+def pasre_args(args: list) -> dict:
     """parse_args is a function which parse command line arguments.
     It's return argument's dictionary.
     It has 3 named parameters:
@@ -44,7 +44,7 @@ def pasre_args(args) -> dict:
 
     # args
     args = parser.parse_args()
-    # print('Args: ', args, type(args))
+    #print('Args: ', args, type(args))
 
     # result dictionary
     words = ["students_path", "rooms_path", "store_format"]

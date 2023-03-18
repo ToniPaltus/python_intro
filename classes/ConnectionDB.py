@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import psycopg2
 
-from logger import init_logger
+from functions.logger import init_logger
 
 init_logger("database")
 logger = logging.getLogger("database")
@@ -37,11 +37,14 @@ class ConnectionDB:
         self.__connection.close()
 
     @classmethod
+    #test
     def get_query_from_file(self, file_path: str) -> str:
         """This method creates a query from file and returns a string."""
+        logger.info('Opening query file')
         file = open(f"{file_path}")
         query = file.read()
         file.close()
+        logger.info('Closing query file')
         return query
 
     def __get_connect(self) -> psycopg2.connect:
@@ -69,7 +72,7 @@ class ConnectionDB:
                 result = cursor.fetchall()
             except Exception as ex:
                 logger.error(ex)
-                print(ex)
+                #print(ex)
 
             if show:
                 print(result, type(result))
@@ -85,8 +88,9 @@ class ConnectionDB:
                     self.__save_to_csv(result)
                 else:
                     logger.warning("Incorrect save format...")
-                    print("Incorrect save format...")
+                    #print("Incorrect save format...")
 
+    #test
     def __save_to_json(self, query_result: list):
         """This method save query result into JSON."""
         df = pd.DataFrame(query_result)
@@ -94,8 +98,9 @@ class ConnectionDB:
         with open("saves/query_result.json", "w") as f:
             f.write(file)
         logger.info("Save format json")
-        print("Successfully loaded")
+        #print("Successfully loaded")
 
+    #test
     def __save_to_csv(self, query_result: list):
         """This method save query result into CSV."""
         df = pd.DataFrame(query_result)
@@ -103,4 +108,4 @@ class ConnectionDB:
         with open("saves/query_result.csv", "w") as f:
             f.write(file)
         logger.info("Save format csv")
-        print("Successfully loaded")
+        #print("Successfully loaded")
