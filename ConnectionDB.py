@@ -1,5 +1,12 @@
+import logging
+
 import pandas as pd
 import psycopg2
+
+from logger import init_logger
+
+init_logger("database")
+logger = logging.getLogger("database")
 
 
 class ConnectionDB:
@@ -26,6 +33,7 @@ class ConnectionDB:
 
     def __del__(self):
         """This method closes the connection to database."""
+        logger.debug("Closing connection")
         self.__connection.close()
 
     @classmethod
@@ -38,6 +46,8 @@ class ConnectionDB:
 
     def __get_connect(self) -> psycopg2.connect:
         """This method create a connection to database with necessary arguments and returns it."""
+        logger.debug("Opening connection")
+
         connecton = psycopg2.connect(
             host=self.__host,
             user=self.__user,
@@ -51,18 +61,21 @@ class ConnectionDB:
     def execute_query(self, query: str, show=False):
         """This method executes query and can save the result into chosen store format."""
         with self.__connection.cursor() as cursor:
+            logger.info("Executing query...")
             cursor.execute(f"""{query}""")
 
             result = ""
             try:
                 result = cursor.fetchall()
             except Exception as ex:
+                logger.error(ex)
                 print(ex)
 
             if show:
                 print(result, type(result))
 
             if self.__store_format.lower() == "":
+                logger.info("Store format is no exist...")
                 return None
 
             if isinstance(result, list):
@@ -71,6 +84,7 @@ class ConnectionDB:
                 elif self.__store_format.lower() == "csv":
                     self.__save_to_csv(result)
                 else:
+                    logger.warning("Incorrect save format...")
                     print("Incorrect save format...")
 
     def __save_to_json(self, query_result: list):
@@ -79,6 +93,7 @@ class ConnectionDB:
         file = df.to_json(orient="records")
         with open("saves/query_result.json", "w") as f:
             f.write(file)
+        logger.info("Save format json")
         print("Successfully loaded")
 
     def __save_to_csv(self, query_result: list):
@@ -87,4 +102,5 @@ class ConnectionDB:
         file = df.to_csv()
         with open("saves/query_result.csv", "w") as f:
             f.write(file)
+        logger.info("Save format csv")
         print("Successfully loaded")

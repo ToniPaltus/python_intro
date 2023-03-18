@@ -1,8 +1,13 @@
+import logging
 import sys
 
 from config.config import db_name, host, password, user
 from ConnectionDB import ConnectionDB
+from logger import init_logger
 from parse_args import pasre_args
+
+init_logger("main")
+logger = logging.getLogger("main")
 
 
 def main():
@@ -24,8 +29,11 @@ def main():
     connection.execute_query(create_students_query)
 
     # create copies (execute once!)
-    # copy_rooms_query = f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
-    # copy_students_query = f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
+
+    # copy_rooms_query =
+    # f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
+    # copy_students_query =
+    # f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
     #
     # connection.execute_query(copy_rooms_query)
     # connection.execute_query(copy_students_query)
@@ -34,6 +42,9 @@ def main():
     connection.execute_query(query, show=True)
 
 
-# python main.py -students='/home/tonipaltus/Innowise/python_intro/data/students.csv' -rooms='/home/tonipaltus/Innowise/python_intro/data/rooms.csv' -store_format='JJJJ'
+# python main.py# -students='/home/tonipaltus/Innowise/python_intro/data/students.csv' -rooms='/home/tonipaltus/Innowise/python_intro/data/rooms.csv' -store_format='JJJJ'
+
 if __name__ == "__main__":
+    logger.info("Starting service...")
     main()
+    logger.info("Stopping service...")
