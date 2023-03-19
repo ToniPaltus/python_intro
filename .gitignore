@@ -3,3 +3,7 @@ test.ipynb
 /data
 /config
 /venv
+classes/__pycache__
+functions/__pycache__
+/saves
+/logs

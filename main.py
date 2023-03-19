@@ -1,89 +1,50 @@
+import logging
 import sys
-import argparse
-import psycopg2     # pip install -U psycopg2-binary
-from config.config import host, user, password, db_name
 
-def pasre_args(args):
-    """Doc"""
-    arguments = {}
-    parser = argparse.ArgumentParser(description="It's a command parser for arguments")
+from config.config import db_name, host, password, user
+from classes.ConnectionDB import ConnectionDB
+from functions.logger import init_logger
+from functions.parse_args import pasre_args
 
-    # adding arguments
-    parser.add_argument(
-        '-students',
-        default='',
-        action='store',
-        dest='students_path',
-        type=str,
-        required=True,
-        help='Add the path of your students file.'
-    )
-    parser.add_argument(
-        '-rooms',
-        default='',
-        action='store',
-        dest='rooms_path',
-        type=str,
-        required=True,
-        help='Add the path of your rooms file.'
-    )
-    parser.add_argument(
-        '-store_format',
-        default='',
-        action='store',
-        dest='store_format',
-        type=str,
-        required=True,
-        help='Choose store file format JSON or XML.'
-    )
+init_logger("main")
+logger = logging.getLogger("main")
 
-    # args
-    args = parser.parse_args()
-    # print('Args: ', args, type(args))
-
-    # result
-    words = ['students_path', 'rooms_path', 'store_format']
-    for word in words:
-        work = 'args' + '.' + word
-        arguments.update({word: eval(work)})
-
-    return arguments
 
 def main():
     arguments = pasre_args(sys.argv[1:0])
 
-    students_path = arguments['students_path']
-    rooms_path = arguments['rooms_path']
-    store_format = arguments['store_format']
-    # print(students_path, rooms_path, store_format, sep='\n')
+    students_path = arguments["students_path"]
+    rooms_path = arguments["rooms_path"]
+    store_format = arguments["store_format"]
 
-    try:
-        # connect to exist db
-        connecton = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name
-        )
-        connecton.autocommit = True
+    connection = ConnectionDB(host, user, password, db_name, store_format=store_format)
 
-        with connecton.cursor() as cursor:
-            cursor.execute(
-                f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
-            )
+    # create tables
+    create_rooms_query = ConnectionDB.get_query_from_file("pg_queries/create_rooms.sql")
+    connection.execute_query(create_rooms_query)
 
-        with connecton.cursor() as cursor:
-            cursor.execute(
-                f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
-            )
-    except Exception as ex:
-        print(ex)
-    finally:
-        if connecton:
-            connecton.close()
-            print('close connection')
+    create_students_query = ConnectionDB.get_query_from_file(
+        "pg_queries/create_students.sql"
+    )
+    connection.execute_query(create_students_query)
+
+    # create copies (execute once!)
+
+    copy_rooms_query = \
+    f"""COPY rooms FROM '{rooms_path}' DELIMITER ',' CSV HEADER;"""
+    copy_students_query = \
+    f"""COPY students FROM '{students_path}' DELIMITER ',' CSV HEADER;"""
+
+    connection.execute_query(copy_rooms_query)
+    connection.execute_query(copy_students_query)
+
+    query = ConnectionDB.get_query_from_file("pg_queries/query1.sql")
+    connection.execute_query(query, show=True)
 
 
-# python main.py -students='/home/tonipaltus/Innowise/python_intro/data/students.csv' -rooms='/home/tonipaltus/Innowise/python_intro/data/rooms.csv' -store_format='JJJJ'
-if __name__ == '__main__':
+# python main.py# -students='/home/tonipaltus/Innowise/python_intro/data/students.csv' -rooms='/home/tonipaltus/Innowise/python_intro/data/rooms.csv' -store_format='JJJJ'
+
+if __name__ == "__main__":
+    logger.info("Starting service...")
     main()
+    logger.info("Stopping service...")
