@@ -9,7 +9,7 @@ init_logger("database")
 logger = logging.getLogger("database")
 
 
-class DB_worker:
+class DBWorker:
     """It's a class for simple connection to database.
     There are many useful methods to work with db."""
 
